@@ -17,8 +17,6 @@ export interface DataInfo<T> {
   roles?: Array<string>;
   /** 当前登录用户的按钮级别权限 */
   permissions?: Array<string>;
-  /** BG ID */
-  bgid?: number;
 }
 
 export const userKey = "user-info";
@@ -73,8 +71,7 @@ export function setToken(data: DataInfo<Date>) {
     username,
     nickname,
     roles,
-    permissions,
-    bgid
+    permissions
   }) {
     useUserStoreHook().SET_AVATAR(avatar);
     useUserStoreHook().SET_USERNAME(username);
@@ -87,20 +84,18 @@ export function setToken(data: DataInfo<Date>) {
       username,
       nickname,
       roles,
-      permissions,
-      bgid
+      permissions
     });
   }
 
   if (data.username && data.roles) {
-    const { username, roles, bgid } = data;
+    const { username, roles } = data;
     setUserKey({
       avatar: data?.avatar ?? "",
       username,
       nickname: data?.nickname ?? "",
       roles,
-      permissions: data?.permissions ?? [],
-      bgid
+      permissions: data?.permissions ?? []
     });
   } else {
     const avatar =
@@ -113,14 +108,12 @@ export function setToken(data: DataInfo<Date>) {
       storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
     const permissions =
       storageLocal().getItem<DataInfo<number>>(userKey)?.permissions ?? [];
-    const bgid = storageLocal().getItem<DataInfo<number>>(userKey)?.bgid;
     setUserKey({
       avatar,
       username,
       nickname,
       roles,
-      permissions,
-      bgid
+      permissions
     });
   }
 }

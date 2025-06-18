@@ -22,7 +22,6 @@ export type {
   setType,
   appType,
   userType,
-  bgType,
   multiType,
   cacheType,
   positionType

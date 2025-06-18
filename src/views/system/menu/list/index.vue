@@ -97,10 +97,7 @@ import { useColumns } from "./columns";
 import { handleTree } from "@/utils/tree";
 import AddMenuDialog from "../components/add-menu-dialog.vue";
 import menuService from "@/api/system/menu";
-import { useBgStoreHook } from "@/store/modules/bg";
-
 const { columns } = useColumns();
-const bgStore = useBgStoreHook();
 
 const formRef = ref<FormInstance>();
 const loading = ref(true);
@@ -136,7 +133,6 @@ async function onSearch() {
   loading.value = true;
   const result = await menuService.getList({
     ...form,
-    bgid: bgStore.bgid,
     pageIndex: pagination.currentPage,
     pageSize: pagination.pageSize
   });
@@ -164,15 +160,6 @@ async function handleDelete(id: number) {
   await menuService.delete(id);
   await onSearch();
 }
-
-watch(
-  () => bgStore.bgid,
-  newBgid => {
-    if (newBgid) {
-      onSearch();
-    }
-  }
-);
 
 onMounted(async () => {
   await onSearch();

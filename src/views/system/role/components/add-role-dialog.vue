@@ -73,7 +73,6 @@ import { Menu, Role } from "@/modules";
 import { handleTree } from "@/utils/tree";
 import { ElMessage, ElTree, FormInstance, FormRules } from "element-plus";
 import { nextTick, onMounted, reactive, ref, watch } from "vue";
-import { useBgStoreHook } from "@/store/modules/bg";
 
 interface Props {
   visible: boolean;
@@ -85,7 +84,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits(["update:visible", "updateList"]);
-const bgStore = useBgStoreHook();
 
 const title = ref("添加角色");
 
@@ -165,13 +163,11 @@ async function confirmClick() {
     if (isCreate) {
       await roleService.add({
         ...formData,
-        bgid: bgStore.bgid,
         permissions: selectMenuIds
       });
     } else {
       await roleService.update({
         ...formData,
-        bgid: bgStore.bgid,
         permissions: selectMenuIds
       });
     }
@@ -187,7 +183,6 @@ async function confirmClick() {
 async function getMenuOptions() {
   const result = await menuService.getList({
     name: "",
-    bgid: bgStore.bgid,
     pageIndex: 1,
     pageSize: 10000
   });

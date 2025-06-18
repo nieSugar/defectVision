@@ -13,9 +13,6 @@ export interface Menu extends ResourceBase {
   /** 父菜单id */
   parentId?: number;
 
-  /** BG ID */
-  bgid?: number;
-
   children?: Array<Menu>;
   hasChildren?: boolean;
 }

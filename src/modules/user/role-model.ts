@@ -7,5 +7,4 @@ export interface Role extends ResourceBase {
   manager?: boolean;
   permissions?: Array<number>;
   description?: string;
-  bgid?: number;
 }

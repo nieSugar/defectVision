@@ -115,10 +115,7 @@ import { FormInstance } from "element-plus";
 import { onMounted, reactive, ref, watch } from "vue";
 import addDeptDialog from "../components/add-dept-dialog.vue";
 import { useColumns } from "./columns";
-import { useBgStoreHook } from "@/store/modules/bg";
-
 const { columns } = useColumns();
-const bgStore = useBgStoreHook();
 
 const formRef = ref<FormInstance>();
 const loading = ref(true);
@@ -156,15 +153,6 @@ async function handleDelete(id: number) {
   await deptService.delete(id);
   await onSearch();
 }
-
-watch(
-  () => bgStore.bgid,
-  newBgid => {
-    if (newBgid) {
-      onSearch();
-    }
-  }
-);
 
 onMounted(async () => {
   await onSearch();

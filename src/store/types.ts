@@ -46,9 +46,4 @@ export type userType = {
   loginDay?: number;
 };
 
-export type bgType = {
-  bgid?: number;
-  bgList?: Array<any>;
-  loading?: boolean;
-  isAdmin?: boolean;
-};
+

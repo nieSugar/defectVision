@@ -117,10 +117,7 @@ import { PaginationProps } from "@pureadmin/table";
 import { FormInstance } from "element-plus";
 import { onMounted, reactive, ref, watch } from "vue";
 import { useColumns } from "./columns";
-import { useBgStoreHook } from "@/store/modules/bg";
-
 const { columns } = useColumns();
-const bgStore = useBgStoreHook();
 
 const formRef = ref<FormInstance>();
 
@@ -191,15 +188,6 @@ async function onSearch() {
   pagination.total = result.totalCount;
   loading.value = false;
 }
-
-watch(
-  () => bgStore.bgid,
-  newBgid => {
-    if (newBgid) {
-      onSearch();
-    }
-  }
-);
 
 onMounted(async () => {
   await onSearch();

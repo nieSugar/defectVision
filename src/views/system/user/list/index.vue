@@ -164,10 +164,7 @@ import { ElMessage, ElMessageBox, ElTree, FormInstance } from "element-plus";
 import { onMounted, reactive, ref, watch } from "vue";
 import addUserDialog from "../components/add-user-dialog.vue";
 import { useColumns } from "./columns";
-import { useBgStoreHook } from "@/store/modules/bg";
-
 const { columns } = useColumns();
-const bgStore = useBgStoreHook();
 
 const formRef = ref<FormInstance>();
 
@@ -295,15 +292,6 @@ function handleNodeClick(data) {
 watch(deptName, val => {
   deptTreeRef.value!.filter(val);
 });
-
-watch(
-  () => bgStore.bgid,
-  newBgid => {
-    if (newBgid) {
-      onSearch();
-    }
-  }
-);
 
 onMounted(async () => {
   await getDeptOptions();

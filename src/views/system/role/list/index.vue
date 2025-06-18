@@ -136,15 +136,12 @@ import roleService from "@/api/user/role";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { PaginationProps } from "@pureadmin/table";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useColumns } from "./columns";
 import addRoleDialog from "../components/add-role-dialog.vue";
 import assignPermissionsDialog from "../components/assign-permissions-dialog.vue";
 import { Role } from "@/modules";
-import { useBgStoreHook } from "@/store/modules/bg";
-
 const { columns } = useColumns();
-const bgStore = useBgStoreHook();
 
 const formRef = ref<FormInstance>();
 
@@ -236,7 +233,6 @@ async function onSearch() {
   loading.value = true;
   const result = await roleService.getList({
     ...form,
-    bgid: bgStore.bgid,
     pageIndex: pagination.currentPage,
     pageSize: pagination.pageSize
   });
@@ -244,16 +240,6 @@ async function onSearch() {
   pagination.total = result.totalCount;
   loading.value = false;
 }
-
-// 监听 bgid 变化，自动刷新列表
-watch(
-  () => bgStore.bgid,
-  newBgid => {
-    if (newBgid) {
-      onSearch();
-    }
-  }
-);
 
 onMounted(async () => {
   await onSearch();

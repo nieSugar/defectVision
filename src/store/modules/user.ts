@@ -11,7 +11,7 @@ import {
   store
 } from "../utils";
 import { useMultiTagsStoreHook } from "./multiTags";
-import { useBgStoreHook } from "./bg";
+
 
 export const useUserStore = defineStore({
   id: "pure-user",
@@ -82,11 +82,6 @@ export const useUserStore = defineStore({
       this.permissions = [];
       removeToken();
 
-      // 清除BG相关状态
-      const bgStore = useBgStoreHook();
-      bgStore.SET_IS_ADMIN(false);
-      bgStore.SET_BGID(undefined);
-
       useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
       resetRouter();
       router.push("/login");
@@ -94,30 +89,17 @@ export const useUserStore = defineStore({
     mapToken(token) {
       const {
         exp,
-        NickName,
-        BGId: bgid
+        NickName
       } = jwtDecode<{
         exp: string;
         NickName: string;
         UserId: number;
-        BGId?: number;
       }>(token);
-
-      // 如果token中包含bgid，设置到bg store中
-      if (bgid !== undefined && bgid !== null) {
-        const bgStore = useBgStoreHook();
-        bgStore.SET_BGID(bgid);
-
-        // 如果bgid为0，标识为管理员
-        const isAdmin = bgid == 0;
-        bgStore.SET_IS_ADMIN(isAdmin);
-      }
 
       const tokenDataInfo: DataInfo<Date> = {
         accessToken: token,
         expires: new Date(Number(exp) * 1000),
-        username: NickName,
-        bgid
+        username: NickName
       };
       return tokenDataInfo;
     }

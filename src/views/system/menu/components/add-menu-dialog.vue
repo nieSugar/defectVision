@@ -67,7 +67,6 @@ import { Menu } from "@/modules";
 import { handleTree } from "@/utils/tree";
 import { ElMessage, FormInstance, FormRules } from "element-plus";
 import { onMounted, reactive, ref, watch } from "vue";
-import { useBgStoreHook } from "@/store/modules/bg";
 
 interface Props {
   visible: boolean;
@@ -81,7 +80,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits(["update:visible", "updateList"]);
-const bgStore = useBgStoreHook();
 
 const title = ref("添加菜单");
 
@@ -114,9 +112,9 @@ async function confirmClick() {
       return;
     }
     if (isCreate) {
-      await menuService.add({ ...formData.value, bgid: bgStore.bgid });
+      await menuService.add({ ...formData.value });
     } else {
-      await menuService.update({ ...formData.value, bgid: bgStore.bgid });
+      await menuService.update({ ...formData.value });
     }
     ElMessage({
       message: isCreate ? "添加成功" : "修改成功",
@@ -129,7 +127,6 @@ async function confirmClick() {
 
 async function getMenuOptions() {
   const { data } = await menuService.getList({
-    bgid: bgStore.bgid,
     pageIndex: 1,
     pageSize: 10000
   });

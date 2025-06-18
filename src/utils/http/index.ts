@@ -13,9 +13,7 @@ import { stringify } from "qs";
 import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import type { ResourceBase } from "../models";
-import { useBgStoreHook } from "@/store/modules/bg";
 
-const bgStore = useBgStoreHook();
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -105,7 +103,6 @@ class PureHttp {
                   config.headers["Authorization"] = formatToken(
                     data.accessToken
                   );
-                  config.headers["bgId "] = bgStore.bgid;
                   resolve(config);
                 }
               } else {

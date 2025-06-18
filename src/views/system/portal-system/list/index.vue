@@ -79,10 +79,7 @@ import { PureTableBar } from "@/components/RePureTableBar";
 import { useColumns } from "./columns";
 import { PortalSystem } from "@/modules";
 import portalSystemService from "@/api/system/portal-system";
-import { useBgStoreHook } from "@/store/modules/bg";
-
 const { columns } = useColumns();
-const bgStore = useBgStoreHook();
 
 const formRef = ref<FormInstance>();
 
@@ -125,15 +122,6 @@ async function onSearch() {
   dataList.value = data;
   loading.value = false;
 }
-
-watch(
-  () => bgStore.bgid,
-  newBgid => {
-    if (newBgid) {
-      onSearch();
-    }
-  }
-);
 
 onMounted(async () => {
   await onSearch();
