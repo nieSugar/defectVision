@@ -29,7 +29,13 @@ class FileService {
         }
       }
     );
-    return result.data;
+
+    if (result && result.data && Array.isArray(result.data)) {
+      return result.data;
+    } else {
+      console.error("文件上传API响应格式不正确:", result);
+      throw new Error("文件上传失败：响应格式不正确");
+    }
   }
 }
 
@@ -49,7 +55,7 @@ class OSSService {
       });
     }
 
-    const result = await http.post<FormData, ListResult<FileInfo[]>>(
+    const result = await http.post<FormData, ListResult<FileInfo>>(
       this.previewUrl,
       {
         data: formData,
@@ -58,7 +64,13 @@ class OSSService {
         }
       }
     );
-    return result.data;
+
+    if (result && result.data && Array.isArray(result.data)) {
+      return result.data;
+    } else {
+      console.error("文件上传API响应格式不正确:", result);
+      throw new Error("文件上传失败：响应格式不正确");
+    }
   }
 }
 

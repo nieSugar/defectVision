@@ -29,6 +29,10 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           target: "http://192.168.12.142:8094",
           // target: "http://localhost:8092",
           changeOrigin: true
+        },
+        "/images": {
+          target: "http://192.168.12.142:8094",
+          changeOrigin: true
         }
       },
       // 预热文件以提前转换和缓存结果，降低启动期间的初始页面加载时长并防止转换瀑布
