@@ -4,17 +4,26 @@ import dayjs from "dayjs";
 export function useColumns() {
   const columns = ref([
     {
-      label: "项目名称",
+      label: "位置名称",
       prop: "name",
       minWidth: 150,
       align: "center"
     },
     {
-      label: "项目描述",
+      label: "描述",
       prop: "description",
       minWidth: 200,
       align: "center",
       showOverflowTooltip: true
+    },
+    {
+      label: "项目名称",
+      prop: "project.name",
+      minWidth: 150,
+      align: "center",
+      cellRenderer: ({ row }) => {
+        return row.project?.name || <span style="color: #999;">暂无</span>;
+      }
     },
     {
       label: "创建时间",

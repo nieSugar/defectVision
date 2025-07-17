@@ -97,18 +97,6 @@ const rules = reactive<FormRules>({
 
 let isCreate = true;
 
-onMounted(() => {
-  resetForm();
-  if (props.projectId) {
-    isCreate = false;
-    title.value = "编辑项目";
-    getProjectDetail();
-  } else {
-    isCreate = true;
-    title.value = "添加项目";
-  }
-});
-
 // 重置表单
 const resetForm = () => {
   formData.value = {
@@ -127,19 +115,35 @@ const getProjectDetail = async () => {
   try {
     loading.value = true;
     const result = await projectService.get(props.projectId);
-    if (result.success && result.data) {
+    if (result.data) {
       formData.value = {
         ...result.data,
         images: result.data.images || []
       };
+      console.log("设置表单数据:", formData.value);
+    } else {
+      console.error("获取项目详情失败:", result);
+      ElMessage.error("获取项目详情失败");
     }
   } catch (error) {
+    console.error("获取项目详情异常:", error);
     ElMessage.error("获取项目详情失败");
   } finally {
     loading.value = false;
   }
 };
 
+onMounted(() => {
+  if (props.projectId) {
+    isCreate = false;
+    title.value = "编辑项目";
+    getProjectDetail();
+  } else {
+    isCreate = true;
+    title.value = "添加项目";
+    resetForm();
+  }
+});
 // 关闭对话框
 const closeDialog = () => {
   visible.value = false;

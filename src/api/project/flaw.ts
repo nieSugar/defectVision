@@ -30,7 +30,9 @@ class FlawService {
   }
 
   async getByProject(projectId: number): Promise<ListResult<Flaw>> {
-    return http.get<number, ListResult<Flaw>>(`${this.baseUrl}/project/${projectId}`);
+    return http.get<number, ListResult<Flaw>>(
+      `${this.baseUrl}/project/${projectId}`
+    );
   }
 }
 

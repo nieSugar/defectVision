@@ -34,14 +34,6 @@ export function useColumns() {
         dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
     },
     {
-      label: "修改时间",
-      prop: "modifyTime",
-      minWidth: 160,
-      align: "center",
-      formatter: ({ modifyTime }) =>
-        dayjs(modifyTime).format("YYYY-MM-DD HH:mm:ss")
-    },
-    {
       label: "操作",
       fixed: "right",
       width: 160,
