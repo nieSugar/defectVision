@@ -114,24 +114,13 @@
 
             <el-table-column label="图片" min-width="200">
               <template #default="{ row }">
-                <div class="flex flex-col gap-2">
-                  <div class="flex gap-2">
-                    <FileUpload
-                      v-model="row.imageAddress"
-                      :limit="1"
-                      accept="image/*"
-                    >
-                      <el-button type="primary" size="small">上传</el-button>
-                    </FileUpload>
-                    <el-button
-                      v-if="row.imageAddress"
-                      type="success"
-                      size="small"
-                      @click="previewImage(row.imageAddress)"
-                    >
-                      预览
-                    </el-button>
-                  </div>
+                <div class="flex justify-center">
+                  <FileUpload
+                    v-model="row.imageAddress"
+                    :limit="1"
+                    accept="image/*"
+                    list-type="picture-card"
+                  />
                 </div>
               </template>
             </el-table-column>
@@ -183,7 +172,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, watch, onMounted } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage, FormInstance } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
 import { limitSampleService, projectService, flawService } from "@/api/project";
@@ -305,11 +294,6 @@ const addItem = () => {
 // 删除条目
 const removeItem = (index: number) => {
   itemList.value.splice(index, 1);
-};
-
-// 预览图片
-const previewImage = (imageUrl: string) => {
-  window.open(imageUrl, "_blank");
 };
 
 // 重置表单
@@ -437,5 +421,16 @@ onMounted(() => {
 .card-header {
   font-weight: 600;
   color: #409eff;
+}
+
+:deep(.el-table .el-upload--picture-card) {
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+}
+
+:deep(.el-table .el-upload-list--picture-card .el-upload-list__item) {
+  width: 80px;
+  height: 80px;
 }
 </style>
