@@ -164,11 +164,7 @@ const customUpload = async (options: UploadRequestOptions) => {
       return;
     }
 
-    // 添加日志以便调试
-    console.log("开始上传文件:", options.file);
-
     const result = await fileService.upload(options.file);
-    console.log("上传结果:", result);
 
     if (result && result.length > 0) {
       const fileUrl = result[0].filePath;

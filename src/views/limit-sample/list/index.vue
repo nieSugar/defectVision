@@ -6,10 +6,10 @@
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
     >
-      <el-form-item label="限度样名称：" prop="name">
+      <el-form-item label="位置：" prop="location">
         <el-input
-          v-model="form.name"
-          placeholder="请输入限度样名称"
+          v-model="form.location"
+          placeholder="请输入位置信息"
           clearable
           class="!w-[200px]"
         />
@@ -105,7 +105,7 @@
     <AddLimitSampleDialog
       v-if="showLimitSampleDialog"
       v-model="showLimitSampleDialog"
-      :limit-sample-id="selectLimitSampleId"
+      :verionId="selectVerionId"
       @update-list="onSearch"
     />
   </div>
@@ -129,10 +129,10 @@ const loading = ref(true);
 const dataList = ref([]);
 const projectList = ref([]);
 const showLimitSampleDialog = ref(false);
-const selectLimitSampleId = ref<number | undefined>();
+const selectVerionId = ref<number | undefined>();
 
 const form = reactive({
-  name: "",
+  location: "",
   projectId: undefined
 });
 
@@ -166,7 +166,10 @@ const onSearch = async () => {
 // 加载项目列表
 const loadProjectList = async () => {
   try {
-    const result = await projectService.getList({ pageIndex: 1, pageSize: 1000 });
+    const result = await projectService.getList({
+      pageIndex: 1,
+      pageSize: 1000
+    });
     projectList.value = result.data || [];
   } catch (error) {
     ElMessage.error("获取项目列表失败");
@@ -194,13 +197,13 @@ const handleCurrentChange = (val: number) => {
 
 // 添加限度样
 const addLimitSample = () => {
-  selectLimitSampleId.value = undefined;
+  selectVerionId.value = undefined;
   showLimitSampleDialog.value = true;
 };
 
 // 编辑限度样
 const editLimitSample = (row: any) => {
-  selectLimitSampleId.value = row.id;
+  selectVerionId.value = row.id;
   showLimitSampleDialog.value = true;
 };
 

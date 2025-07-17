@@ -12,21 +12,6 @@
       label-width="100px"
       label-position="left"
     >
-      <el-form-item label="缺陷名称" prop="name">
-        <el-input
-          v-model="formData.name"
-          placeholder="请输入缺陷名称"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="缺陷描述" prop="description">
-        <el-input
-          v-model="formData.description"
-          type="textarea"
-          :rows="4"
-          placeholder="请输入缺陷描述"
-        />
-      </el-form-item>
       <el-form-item label="所属项目" prop="projectId">
         <el-select
           v-model="formData.projectId"
@@ -42,6 +27,21 @@
             :value="item.id"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="名称" prop="name">
+        <el-input
+          v-model="formData.name"
+          placeholder="请输入缺陷名称"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="描述" prop="description">
+        <el-input
+          v-model="formData.description"
+          type="textarea"
+          :rows="4"
+          placeholder="请输入缺陷描述"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -83,7 +83,7 @@ const formData = ref<Flaw>({
 });
 
 const rules = reactive<FormRules>({
-  name: [{ required: true, message: "缺陷名称不能为空", trigger: "blur" }],
+  name: [{ required: true, message: "名称不能为空", trigger: "blur" }],
   projectId: [{ required: true, message: "请选择项目", trigger: "change" }]
 });
 
@@ -93,9 +93,7 @@ async function getProjectOptions() {
       pageIndex: 1,
       pageSize: 1000
     });
-    if (result.success) {
-      projectOptions.value = result.data || [];
-    }
+    projectOptions.value = result.data || [];
   } catch (error) {
     console.error("获取项目列表失败", error);
   }
@@ -106,10 +104,8 @@ async function getFlawDetail() {
 
   try {
     const result = await flawService.get(props.flawId);
-    if (result.success) {
-      formData.value = { ...result.data };
-      title.value = "编辑缺陷";
-    }
+    formData.value = { ...result.data };
+    title.value = "编辑缺陷";
   } catch (error) {
     console.error("获取缺陷详情失败", error);
   }
@@ -154,16 +150,8 @@ async function handleSubmit() {
   }
 }
 
-watch(
-  () => visible.value,
-  val => {
-    if (val) {
-      getFlawDetail();
-    }
-  }
-);
-
-onMounted(() => {
-  getProjectOptions();
+onMounted(async () => {
+  await getProjectOptions();
+  await getFlawDetail();
 });
 </script>

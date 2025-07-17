@@ -12,21 +12,6 @@
       label-width="100px"
       label-position="left"
     >
-      <el-form-item label="位置名称" prop="name">
-        <el-input
-          v-model="formData.name"
-          placeholder="请输入位置名称"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-input
-          v-model="formData.description"
-          type="textarea"
-          :rows="4"
-          placeholder="请输入位置描述"
-        />
-      </el-form-item>
       <el-form-item label="关联项目" prop="projectId">
         <el-select
           v-model="formData.projectId"
@@ -42,6 +27,21 @@
             :value="project.id"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="名称" prop="name">
+        <el-input
+          v-model="formData.name"
+          placeholder="请输入位置名称"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="描述" prop="description">
+        <el-input
+          v-model="formData.description"
+          type="textarea"
+          :rows="4"
+          placeholder="请输入位置描述"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
