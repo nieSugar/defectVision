@@ -36,7 +36,7 @@
 
       <!-- 项目图片展示 -->
       <div v-if="projectImages.length > 0" class="project-images mb-6">
-        <el-card>
+        <el-card class="image-card">
           <div class="image-gallery">
             <div
               v-for="(image, index) in projectImages"
@@ -45,7 +45,7 @@
             >
               <el-image
                 :src="image"
-                style="width: 120px; height: 120px; margin: 5px"
+                style="width: 80px; height: 80px"
                 fit="cover"
                 :preview-src-list="projectImages"
                 :initial-index="index"
@@ -57,31 +57,19 @@
 
       <!-- 限度样条目配置 -->
       <div v-if="projectForm.projectId">
-        <div class="flex justify-between items-center mb-4">
-          <h3>限度样条目配置</h3>
-          <el-button v-if="!isEdit" type="primary" @click="addItem">
-            <el-icon><Plus /></el-icon>
-            添加条目
-          </el-button>
-        </div>
-
-        <div v-if="itemList.length > 0">
-          <el-table :data="itemList" border style="width: 100%">
-            <el-table-column
-              type="index"
-              label="序号"
-              width="60"
-              align="center"
-            />
-
-            <el-table-column label="关联缺陷" min-width="150">
-              <template #default="{ row }">
+        <div class="config-header mb-4">
+          <div class="header-left">
+            <h3>限度样条目配置</h3>
+            <div v-if="itemList.length > 0" class="filter-controls">
+              <div class="filter-item">
+                <label class="filter-label">缺陷:</label>
                 <el-select
-                  v-model="row.flawId"
-                  placeholder="请选择缺陷"
+                  v-model="flawFilter"
+                  placeholder="全部缺陷"
                   clearable
                   filterable
-                  style="width: 100%"
+                  size="small"
+                  style="width: 150px"
                 >
                   <el-option
                     v-for="flaw in flawList"
@@ -90,17 +78,17 @@
                     :value="flaw.id"
                   />
                 </el-select>
-              </template>
-            </el-table-column>
+              </div>
 
-            <el-table-column label="位置" min-width="150">
-              <template #default="{ row }">
+              <div class="filter-item">
+                <label class="filter-label">位置:</label>
                 <el-select
-                  v-model="row.locationId"
-                  placeholder="请选择位置"
+                  v-model="locationFilter"
+                  placeholder="全部位置"
                   clearable
                   filterable
-                  style="width: 100%"
+                  size="small"
+                  style="width: 150px"
                 >
                   <el-option
                     v-for="location in locationList"
@@ -109,39 +97,107 @@
                     :value="location.id"
                   />
                 </el-select>
-              </template>
-            </el-table-column>
+              </div>
+            </div>
+          </div>
 
-            <el-table-column label="图片" min-width="200">
-              <template #default="{ row }">
-                <div class="flex justify-center">
-                  <FileUpload
-                    v-model="row.imageAddress"
-                    :limit="1"
-                    accept="image/*"
-                    list-type="picture-card"
-                  />
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="备注" min-width="150">
-              <template #default="{ row }">
-                <el-input v-model="row.remark" placeholder="请输入备注" />
-              </template>
-            </el-table-column>
+          <el-button v-if="!isEdit" type="primary" @click="addItem">
+            <el-icon><Plus /></el-icon>
+            添加条目
+          </el-button>
+        </div>
 
-            <el-table-column label="操作" width="80" align="center">
-              <template #default="{ $index }">
+        <!-- 过滤结果提示 -->
+        <div
+          v-if="itemList.length > 0 && (flawFilter || locationFilter)"
+          class="filter-result mb-3"
+        >
+          <el-tag size="small" type="info">
+            显示 {{ filteredItemList.length }} / {{ itemList.length }} 个条目
+          </el-tag>
+        </div>
+
+        <div v-if="itemList.length > 0" class="item-cards">
+          <el-card
+            v-for="item in filteredItemList"
+            :key="itemList.indexOf(item)"
+            class="item-card"
+            shadow="hover"
+          >
+            <template #header>
+              <div class="card-header">
+                <span>条目 {{ itemList.indexOf(item) + 1 }}</span>
                 <el-button
                   type="danger"
                   size="small"
-                  @click="removeItem($index)"
+                  :icon="Delete"
+                  circle
+                  @click="removeItem(itemList.indexOf(item))"
+                />
+              </div>
+            </template>
+
+            <div class="card-content">
+              <div class="form-item">
+                <label class="form-label">关联缺陷</label>
+                <el-select
+                  v-model="item.flawId"
+                  placeholder="请选择缺陷"
+                  clearable
+                  filterable
+                  size="small"
+                  style="width: 100%"
                 >
-                  删除
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+                  <el-option
+                    v-for="flaw in getAvailableFlaws(item.flawId)"
+                    :key="flaw.id"
+                    :label="flaw.name"
+                    :value="flaw.id"
+                  />
+                </el-select>
+              </div>
+
+              <div class="form-item">
+                <label class="form-label">位置</label>
+                <el-select
+                  v-model="item.locationId"
+                  placeholder="请选择位置"
+                  clearable
+                  filterable
+                  size="small"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="location in getAvailableLocations(item.locationId)"
+                    :key="location.id"
+                    :label="location.name"
+                    :value="location.id"
+                  />
+                </el-select>
+              </div>
+
+              <div class="form-item">
+                <label class="form-label">图片</label>
+                <FileUpload
+                  v-model="item.imageAddress"
+                  :limit="1"
+                  accept="image/*"
+                  list-type="picture-card"
+                />
+              </div>
+
+              <div class="form-item">
+                <label class="form-label">备注</label>
+                <el-input
+                  v-model="item.remark"
+                  type="textarea"
+                  :rows="2"
+                  placeholder="请输入备注"
+                  size="small"
+                />
+              </div>
+            </div>
+          </el-card>
         </div>
 
         <div v-else class="no-items">
@@ -174,7 +230,7 @@
 <script lang="ts" setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage, FormInstance } from "element-plus";
-import { Plus } from "@element-plus/icons-vue";
+import { Plus, Delete } from "@element-plus/icons-vue";
 import { limitSampleService, projectService, flawService } from "@/api/project";
 import locationService from "@/api/system/location";
 import type { Project, Flaw, Location, LimitSampleItem } from "@/modules";
@@ -215,6 +271,10 @@ const projectForm = reactive({
 });
 
 const itemList = ref<LimitSampleItem[]>([]);
+
+// 过滤器状态
+const flawFilter = ref<number | undefined>();
+const locationFilter = ref<number | undefined>();
 
 // 表单验证规则
 const projectRules = {
@@ -296,6 +356,49 @@ const removeItem = (index: number) => {
   itemList.value.splice(index, 1);
 };
 
+// 过滤后的条目列表
+const filteredItemList = computed(() => {
+  let filtered = itemList.value;
+
+  // 按缺陷过滤
+  if (flawFilter.value) {
+    filtered = filtered.filter(item => item.flawId === flawFilter.value);
+  }
+
+  // 按位置过滤
+  if (locationFilter.value) {
+    filtered = filtered.filter(
+      item => item.locationId === locationFilter.value
+    );
+  }
+
+  return filtered;
+});
+
+// 获取可用的缺陷列表（排除已选择的）
+const getAvailableFlaws = (currentFlawId?: number) => {
+  const selectedFlawIds = itemList.value
+    .map(item => item.flawId)
+    .filter(id => id && id !== currentFlawId);
+
+  return flawList.value.filter(
+    flaw => !selectedFlawIds.includes(flaw.id) || flaw.id === currentFlawId
+  );
+};
+
+// 获取可用的位置列表（排除已选择的）
+const getAvailableLocations = (currentLocationId?: number) => {
+  const selectedLocationIds = itemList.value
+    .map(item => item.locationId)
+    .filter(id => id && id !== currentLocationId);
+
+  return locationList.value.filter(
+    location =>
+      !selectedLocationIds.includes(location.id) ||
+      location.id === currentLocationId
+  );
+};
+
 // 重置表单
 const resetForm = () => {
   projectForm.projectId = undefined;
@@ -304,6 +407,8 @@ const resetForm = () => {
   flawList.value = [];
   locationList.value = [];
   itemList.value = [];
+  flawFilter.value = undefined;
+  locationFilter.value = undefined;
   projectFormRef.value?.clearValidate();
 };
 
@@ -399,12 +504,56 @@ onMounted(() => {
 .project-images {
   margin-bottom: 24px;
 }
+.image-card {
+  padding: 5px;
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header-left h3 {
+  margin: 0;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: #606266;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-result {
+  text-align: center;
+}
 
 .image-gallery {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 16px 0;
+  gap: 4px;
+  padding: 8px 0;
 }
 
 .image-item {
@@ -418,19 +567,56 @@ onMounted(() => {
   padding: 40px 0;
 }
 
+.item-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.item-card {
+  width: calc(20% - 10px);
+  min-width: 200px;
+  border-radius: 8px;
+}
+
 .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-weight: 600;
   color: #409eff;
+  font-size: 13px;
 }
 
-:deep(.el-table .el-upload--picture-card) {
-  width: 80px;
-  height: 80px;
-  line-height: 80px;
+.card-content {
+  padding: 0;
 }
 
-:deep(.el-table .el-upload-list--picture-card .el-upload-list__item) {
-  width: 80px;
-  height: 80px;
+.form-item {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 12px;
+  color: #606266;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+:deep(.el-upload--picture-card) {
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+}
+
+:deep(.el-upload-list--picture-card .el-upload-list__item) {
+  width: 60px;
+  height: 60px;
 }
 </style>

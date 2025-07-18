@@ -134,7 +134,7 @@ const handleChange = (file: UploadFile, files: UploadFiles) => {
 // 文件移除处理
 const handleRemove = (file: UploadFile) => {
   const urls = fileList.value
-    .filter(f => f.status === "success" && f.url)
+    .filter(f => f.uid !== file.uid && f.status === "success" && f.url)
     .map(f => f.url!);
 
   updateValue(urls);

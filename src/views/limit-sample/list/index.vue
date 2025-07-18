@@ -6,28 +6,13 @@
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
     >
-      <el-form-item label="位置：" prop="location">
+      <el-form-item label="版本号：" prop="versionNo">
         <el-input
-          v-model="form.location"
-          placeholder="请输入位置信息"
+          v-model="form.versionNo"
+          placeholder="请输入版本号"
           clearable
           class="!w-[200px]"
         />
-      </el-form-item>
-      <el-form-item label="关联项目：" prop="projectId">
-        <el-select
-          v-model="form.projectId"
-          placeholder="请选择关联项目"
-          clearable
-          class="!w-[200px]"
-        >
-          <el-option
-            v-for="project in projectList"
-            :key="project.id"
-            :label="project.name"
-            :value="project.id"
-          />
-        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button
@@ -132,8 +117,7 @@ const showLimitSampleDialog = ref(false);
 const selectVerionId = ref<number | undefined>();
 
 const form = reactive({
-  location: "",
-  projectId: undefined
+  versionNo: ""
 });
 
 const pagination = reactive<PaginationProps>({

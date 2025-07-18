@@ -151,7 +151,7 @@ const onSearch = async () => {
   loading.value = true;
   try {
     const params = {
-      query: form,
+      ...form,
       pageIndex: pagination.currentPage,
       pageSize: pagination.pageSize
     };
