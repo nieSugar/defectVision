@@ -505,7 +505,11 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 .image-card {
-  padding: 5px;
+  ::v-deep {
+    .el-card__body {
+      padding: 0;
+    }
+  }
 }
 
 .config-header {
