@@ -40,8 +40,19 @@
           showOverflowTooltip
           table-layout="auto"
         >
+          <template #icon="{ row }">
+            <div class="flex items-center justify-center">
+              <IconifyIconOffline :icon="row.icon" />
+            </div>
+          </template>
+          <template #status="{ row }">
+            <el-tag type="success">
+              {{ row.status == 1 ? "正常" : "停用" }}
+            </el-tag>
+          </template>
           <template #operation="{ row }">
             <el-button
+              v-if="row.type !== 3"
               :size="size"
               class="reset-margin"
               link
@@ -91,12 +102,12 @@
 <script lang="ts" setup>
 import { PureTableBar } from "@/components/RePureTableBar";
 import { FormInstance } from "element-plus";
-import { PaginationProps } from "@pureadmin/table";
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useColumns } from "./columns";
 import { handleTree } from "@/utils/tree";
 import AddMenuDialog from "../components/add-menu-dialog.vue";
 import menuService from "@/api/system/menu";
+
 const { columns } = useColumns();
 
 const formRef = ref<FormInstance>();
@@ -105,13 +116,6 @@ const dataList = ref([]);
 const showMenuDialog = ref(false);
 const selectMenuId = ref<number | undefined>();
 const isAddChild = ref(false);
-
-const pagination = reactive<PaginationProps>({
-  total: 0,
-  pageSize: 10,
-  currentPage: 1,
-  background: true
-});
 
 const form = reactive<{
   name?: string;
@@ -133,22 +137,12 @@ async function onSearch() {
   loading.value = true;
   const result = await menuService.getList({
     ...form,
-    pageIndex: pagination.currentPage,
-    pageSize: pagination.pageSize
+    pageIndex: 1,
+    pageSize: 10000
   });
   dataList.value = handleTree(result.data);
   loading.value = false;
 }
-
-// function handleCurrentChange(val: number) {
-//   pagination.currentPage = val;
-//   onSearch();
-// }
-
-// function handleSizeChange(val: number) {
-//   pagination.pageSize = val;
-//   onSearch();
-// }
 
 function addMenu(id?: number) {
   selectMenuId.value = id ?? undefined;

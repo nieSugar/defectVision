@@ -17,23 +17,27 @@ import {
   isIncludeAllChildren
 } from "@pureadmin/utils";
 import { getConfig } from "@/config";
-import { buildHierarchyTree } from "@/utils/tree";
+import { buildHierarchyTree, handleTree } from "@/utils/tree";
 import { userKey, type DataInfo } from "@/utils/auth";
 import { type menuType, routerArrays } from "@/layout/types";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 const IFrame = () => import("@/layout/frame.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
-const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
+const modulesRoutes = import.meta.glob([
+  "/src/views/**/*.{vue,tsx}",
+  "!/src/views/**/components/**"
+]);
 
 // 动态路由
-import { getAsyncRoutes } from "@/api/routes";
+import menuService from "@/api/system/menu";
+import type { Menu } from "@/modules";
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
   return isAllEmpty(parentId)
     ? isAllEmpty(meta?.rank) ||
-      (meta?.rank === 0 && path !== "/")
+      (meta?.rank === 0 && name !== "model-manage" && path !== "/")
       ? true
       : false
     : false;
@@ -151,10 +155,15 @@ function addPathMatch() {
 
 /** 处理动态路由（后端返回的路由） */
 function handleAsyncRoutes(routeList) {
-  if (routeList.length === 0) {
-    usePermissionStoreHook().handleWholeMenus(routeList);
+  const dataTree = handleTree(routeList);
+  const menuRouters = mapMenuToRouters(dataTree);
+  ascending(menuRouters);
+  if (menuRouters.length === 0) {
+    usePermissionStoreHook().handleWholeMenus([]);
   } else {
-    formatFlatteningRoutes(addAsyncRoutes(routeList)).map(
+    console.log(menuRouters, "menuRouters");
+
+    formatFlatteningRoutes(addAsyncRoutes(menuRouters)).map(
       (v: RouteRecordRaw) => {
         // 防止重复添加路由
         if (
@@ -176,7 +185,7 @@ function handleAsyncRoutes(routeList) {
         }
       }
     );
-    usePermissionStoreHook().handleWholeMenus(routeList);
+    usePermissionStoreHook().handleWholeMenus(menuRouters);
   }
   if (!useMultiTagsStoreHook().getMultiTagsCache) {
     useMultiTagsStoreHook().handleTags("equal", [
@@ -202,7 +211,7 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(({ data }) => {
+        menuService.getAuthMenus().then(({ data }) => {
           handleAsyncRoutes(cloneDeep(data));
           storageLocal().setItem(key, data);
           resolve(router);
@@ -211,7 +220,7 @@ function initRouter() {
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(({ data }) => {
+      menuService.getAuthMenus().then(({ data }) => {
         handleAsyncRoutes(cloneDeep(data));
         resolve(router);
       });
@@ -386,6 +395,71 @@ function getTopMenu(tag = false): menuType {
   );
   tag && useMultiTagsStoreHook().handleTags("push", topMenu);
   return topMenu;
+}
+
+function mapMenuToRouters(menus: Array<Menu>) {
+  const routes: Array<RouteRecordRaw> = [];
+  menus.forEach(menu => {
+    const route: RouteRecordRaw = {
+      path: `/${menu.path}`,
+      name: menu.perms,
+      meta: {
+        title: menu.name,
+        icon: menu.icon,
+        showLink: menu.visible === 1,
+        rank: menu.rank
+      },
+      redirect: ""
+      // children: menu.children?.map(s => {
+      //   const childrenConfigs: RouteChildrenConfigsTable = {
+      //     path: s.path
+      //   };
+      //   return childrenConfigs;
+      // })
+    };
+    if (menu.isFrame === 1) {
+      route.redirect = `/${menu.path}/index`;
+      if (!menu.isEmbedded) {
+        route.children = [
+          {
+            path: `/${menu.path}/index`,
+            name: menu.frameSrc,
+            redirect: ""
+          }
+        ];
+      } else {
+        route.children = [
+          {
+            path: `/${menu.path}/index`,
+            redirect: "",
+            meta: {
+              title: menu.name,
+              frameSrc: menu.frameSrc
+            }
+          }
+        ];
+      }
+    } else {
+      route.children = menu.children?.map(s => {
+        const childrenConfigs = {
+          path: `/${s.path}`,
+          redirect: "",
+          name: s.perms,
+          meta: {
+            title: s.name,
+            icon: s.icon,
+            showLink: s.visible === 1,
+            auths: s.children?.map(c => c.perms),
+            rank: s.rank
+          }
+        };
+        return childrenConfigs;
+      });
+    }
+    routes.push(route);
+  });
+
+  return routes;
 }
 
 export {

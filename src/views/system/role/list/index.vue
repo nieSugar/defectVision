@@ -47,7 +47,7 @@
       @refresh="onSearch"
     >
       <template #buttons>
-        <!-- <el-button type="primary" @click="addUser()">添加</el-button> -->
+        <el-button type="primary" @click="addUser()">添加</el-button>
       </template>
       <template v-slot="{ size }">
         <PureTable
@@ -79,7 +79,7 @@
             </div>
           </template>
           <template #operation="{ row }">
-            <!-- <el-button
+            <el-button
               class="reset-margin"
               link
               type="primary"
@@ -87,17 +87,8 @@
               @click="editRole(row)"
             >
               编辑
-            </el-button> -->
-            <el-button
-              class="reset-margin"
-              link
-              type="primary"
-              :size="size"
-              @click="assignPermissions(row)"
-            >
-              分配权限
             </el-button>
-            <!-- <el-popconfirm
+            <el-popconfirm
               title="是否确认删除?"
               @confirm="handleDelete(row.id)"
             >
@@ -111,7 +102,7 @@
                   删除
                 </el-button>
               </template>
-            </el-popconfirm> -->
+            </el-popconfirm>
           </template>
         </PureTable>
       </template>
@@ -120,12 +111,6 @@
       v-if="showAddDialog"
       v-model:visible="showAddDialog"
       :role="role"
-      @update-list="onSearch"
-    />
-    <assignPermissionsDialog
-      v-if="showAssignDialog"
-      v-model:visible="showAssignDialog"
-      :role="selectedRole"
       @update-list="onSearch"
     />
   </div>
@@ -139,18 +124,16 @@ import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
 import { onMounted, reactive, ref } from "vue";
 import { useColumns } from "./columns";
 import addRoleDialog from "../components/add-role-dialog.vue";
-import assignPermissionsDialog from "../components/assign-permissions-dialog.vue";
 import { Role } from "@/modules";
+
 const { columns } = useColumns();
 
 const formRef = ref<FormInstance>();
 
 const loading = ref(false);
 const showAddDialog = ref(false);
-const showAssignDialog = ref(false);
 
 let role = undefined;
-let selectedRole = ref<Role | undefined>(undefined);
 
 const form = reactive({
   name: "",
@@ -200,12 +183,7 @@ function editRole(row: Role) {
   showAddDialog.value = true;
 }
 
-function assignPermissions(row: Role) {
-  selectedRole.value = row;
-  showAssignDialog.value = true;
-}
-
-async function handleDelete(id: number) {
+async function handleDelete(id) {
   await roleService.delete(id);
   ElMessage.success("删除成功");
   onSearch();
