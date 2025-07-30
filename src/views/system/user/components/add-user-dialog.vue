@@ -19,6 +19,20 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
+          <el-form-item label="归属部门" prop="deptId">
+            <el-tree-select
+              v-model="formData.deptId"
+              :data="deptOptions"
+              :props="{ value: 'id', label: 'name', children: 'children' }"
+              value-key="id"
+              placeholder="请选择归属部门"
+              check-strictly
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
           <el-form-item label="手机号码" prop="phonenumber">
             <el-input
               v-model="formData.phoneNumber"
@@ -27,8 +41,6 @@
             />
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row>
         <el-col :span="12">
           <el-form-item label="邮箱" prop="email">
             <el-input
@@ -38,6 +50,8 @@
             />
           </el-form-item>
         </el-col>
+      </el-row>
+      <el-row>
         <el-col :span="12">
           <el-form-item label="用户名" prop="userName">
             <el-input
@@ -47,8 +61,6 @@
             />
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row>
         <el-col v-if="isCreate" :span="12">
           <el-form-item label="用户密码" prop="password">
             <el-input
@@ -60,18 +72,6 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="角色" required>
-            <el-select v-model="formData.roleIds" multiple placeholder="请选择">
-              <el-option
-                v-for="item in roleOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
       </el-row>
       <el-row>
         <el-col :span="12">
@@ -80,11 +80,25 @@
               <el-radio
                 v-for="dict in stateOptions"
                 :key="dict.value.toString()"
-                :label="dict.value"
+                :value="dict.value"
               >
                 {{ dict.label }}
               </el-radio>
             </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="角色">
+            <el-select v-model="formData.roleIds" multiple placeholder="请选择">
+              <el-option
+                v-for="item in roleOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
       </el-row>
@@ -175,7 +189,6 @@ const rules = reactive<FormRules>({
       trigger: "blur"
     }
   ],
-  roleIds: [{ required: true, message: "请选择角色", trigger: "blur" }],
   email: [
     {
       pattern: /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+.)+([a-zA-Z0-9]{2,4})+$/,

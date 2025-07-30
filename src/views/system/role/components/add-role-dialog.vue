@@ -19,15 +19,15 @@
           <el-radio
             v-for="dict in stateOptions"
             :key="dict.value.toString()"
-            :label="dict.value"
+            :value="dict.value"
             >{{ dict.label }}</el-radio
           >
         </el-radio-group>
       </el-form-item>
       <el-form-item label="是否为管理员">
         <el-radio-group v-model="formData.manager">
-          <el-radio :label="true" size="large">是</el-radio>
-          <el-radio :label="false" size="large">否</el-radio>
+          <el-radio :value="true" size="large">是</el-radio>
+          <el-radio :value="false" size="large">否</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="菜单权限">
@@ -161,15 +161,9 @@ async function confirmClick() {
     const selectMenuIds = (menuRef.value.getCheckedKeys() ??
       []) as Array<number>;
     if (isCreate) {
-      await roleService.add({
-        ...formData,
-        permissions: selectMenuIds
-      });
+      await roleService.add({ ...formData, permissions: selectMenuIds });
     } else {
-      await roleService.update({
-        ...formData,
-        permissions: selectMenuIds
-      });
+      await roleService.update({ ...formData, permissions: selectMenuIds });
     }
     ElMessage({
       message: isCreate ? "添加成功" : "编辑成功",

@@ -44,7 +44,7 @@
               <el-radio
                 v-for="dict in deptStatusOptions"
                 :key="dict.value.toString()"
-                :label="dict.value"
+                :value="dict.value"
                 >{{ dict.label }}</el-radio
               >
             </el-radio-group>
