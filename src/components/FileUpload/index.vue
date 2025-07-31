@@ -16,6 +16,30 @@
       :http-request="customUpload"
       list-type="picture-card"
     >
+      <template #file="{ file }">
+        <div class="upload-picture-card-item">
+          <el-image
+            style="width: 100%; height: 100%"
+            :src="file.url"
+            :preview-src-list="previewUrls"
+            fit="cover"
+          />
+          <span class="el-upload-list__item-actions">
+            <span
+              class="el-upload-list__item-preview"
+              @click.stop="previewImage(file)"
+            >
+              <el-icon><ZoomIn /></el-icon>
+            </span>
+            <span
+              class="el-upload-list__item-delete"
+              @click.stop="removeFile(file)"
+            >
+              <el-icon><Delete /></el-icon>
+            </span>
+          </span>
+        </div>
+      </template>
       <el-icon><Plus /></el-icon>
     </el-upload>
 
@@ -47,6 +71,12 @@
       </template>
     </el-upload>
   </div>
+  <el-image-viewer
+    v-if="viewerVisible"
+    :url-list="previewUrls"
+    :initial-index="viewerIndex"
+    @close="viewerVisible = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -57,7 +87,7 @@ import {
   type UploadFiles,
   type UploadRequestOptions
 } from "element-plus";
-import { Plus, Upload } from "@element-plus/icons-vue";
+import { Plus, Upload, Delete, ZoomIn } from "@element-plus/icons-vue";
 import { fileService } from "@/api/oss";
 
 interface Props {
@@ -125,10 +155,30 @@ watch(
   { immediate: true }
 );
 
+// 预览地址列表供 Image 使用
+const previewUrls = computed(() =>
+  fileList.value.filter(f => f.status === "success" && f.url).map(f => f.url!)
+);
+
+// 查看大图
+const viewerVisible = ref(false);
+const viewerIndex = ref(0);
+
+const previewImage = (file: UploadFile) => {
+  const idx = previewUrls.value.findIndex(u => u === file.url);
+  viewerIndex.value = idx === -1 ? 0 : idx;
+  viewerVisible.value = true;
+};
+
 // 文件变化处理
 const handleChange = (file: UploadFile, files: UploadFiles) => {
   // 文件状态变化时更新文件列表
   fileList.value = files;
+};
+
+// 点击删除按钮
+const removeFile = (file: UploadFile) => {
+  uploadRef.value?.handleRemove(file);
 };
 
 // 文件移除处理
