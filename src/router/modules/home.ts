@@ -4,7 +4,7 @@ export default {
   path: "/",
   name: "Home",
   component: Layout,
-  redirect: "/system/user/list",
+  redirect: "/project/list",
   meta: {
     title: "首页",
     icon: "ep:home-filled",

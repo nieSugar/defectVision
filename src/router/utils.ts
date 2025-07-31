@@ -25,8 +25,9 @@ import { usePermissionStoreHook } from "@/store/modules/permission";
 const IFrame = () => import("@/layout/frame.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob([
-  "/src/views/**/*.{vue,tsx}",
-  "!/src/views/**/components/**"
+  "/src/views/**/*.vue",
+  "!/src/views/**/components/**",
+  "!/src/views/login/**"
 ]);
 
 // 动态路由

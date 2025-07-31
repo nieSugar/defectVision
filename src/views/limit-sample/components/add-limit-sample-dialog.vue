@@ -505,7 +505,7 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 .image-card {
-  ::v-deep {
+  :deep {
     .el-card__body {
       padding: 0;
     }

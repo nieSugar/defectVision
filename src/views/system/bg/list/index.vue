@@ -4,9 +4,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
-// bg管理页面逻辑
-</script>
+<script setup lang="ts"></script>
 
 <style scoped>
 .bg-management {
