@@ -132,7 +132,7 @@
                   size="small"
                   :icon="Delete"
                   circle
-                  @click="removeItem(itemList.indexOf(item))"
+                  @click="removeItem(item)"
                 />
               </div>
             </template>
@@ -271,6 +271,7 @@ const projectForm = reactive({
 });
 
 const itemList = ref<LimitSampleItem[]>([]);
+const deletedItemIds = ref<number[]>([]);
 
 // 过滤器状态
 const flawFilter = ref<number | undefined>();
@@ -352,8 +353,14 @@ const addItem = () => {
 };
 
 // 删除条目
-const removeItem = (index: number) => {
-  itemList.value.splice(index, 1);
+const removeItem = (item: LimitSampleItem) => {
+  const index = itemList.value.indexOf(item);
+  if (index > -1) {
+    if (isEdit.value && item.id) {
+      deletedItemIds.value.push(item.id);
+    }
+    itemList.value.splice(index, 1);
+  }
 };
 
 // 过滤后的条目列表
@@ -375,28 +382,14 @@ const filteredItemList = computed(() => {
   return filtered;
 });
 
-// 获取可用的缺陷列表（排除已选择的）
+// 获取可用的缺陷列表
 const getAvailableFlaws = (currentFlawId?: number) => {
-  const selectedFlawIds = itemList.value
-    .map(item => item.flawId)
-    .filter(id => id && id !== currentFlawId);
-
-  return flawList.value.filter(
-    flaw => !selectedFlawIds.includes(flaw.id) || flaw.id === currentFlawId
-  );
+  return flawList.value;
 };
 
-// 获取可用的位置列表（排除已选择的）
+// 获取可用的位置列表
 const getAvailableLocations = (currentLocationId?: number) => {
-  const selectedLocationIds = itemList.value
-    .map(item => item.locationId)
-    .filter(id => id && id !== currentLocationId);
-
-  return locationList.value.filter(
-    location =>
-      !selectedLocationIds.includes(location.id) ||
-      location.id === currentLocationId
-  );
+  return locationList.value;
 };
 
 // 重置表单
@@ -407,6 +400,7 @@ const resetForm = () => {
   flawList.value = [];
   locationList.value = [];
   itemList.value = [];
+  deletedItemIds.value = [];
   flawFilter.value = undefined;
   locationFilter.value = undefined;
   projectFormRef.value?.clearValidate();
@@ -451,16 +445,29 @@ const handleSubmit = async () => {
           projectId: projectForm.projectId!,
           flawId: item.flawId!,
           locationId: item.locationId,
-          imageAddress: item.imageAddress
+          imageAddress: item.imageAddress,
+          remark: item.remark
         };
         return data;
       });
       await limitSampleService.add(promises);
       ElMessage.success(`添加成功`);
     } else {
-      const promises = itemList.value.map(item => {
-        return limitSampleService.update(item);
-      });
+      // 编辑模式 - 处理删除和更新
+      const promises: Promise<any>[] = [];
+
+      if (deletedItemIds.value.length > 0) {
+        const deletePromises = deletedItemIds.value.map(id =>
+          limitSampleService.delete(id)
+        );
+        promises.push(...deletePromises);
+      }
+
+      const updatePromises = itemList.value.map(item =>
+        limitSampleService.update(item)
+      );
+      promises.push(...updatePromises);
+
       await Promise.all(promises);
       ElMessage.success(`编辑成功`);
     }
@@ -468,7 +475,7 @@ const handleSubmit = async () => {
     emit("update-list");
     handleClose();
   } catch (error) {
-    ElMessage.error("添加失败");
+    ElMessage.error(isEdit.value ? "编辑失败" : "添加失败");
   } finally {
     loading.value = false;
   }

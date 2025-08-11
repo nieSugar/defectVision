@@ -46,6 +46,10 @@ class LimitSampleService {
   async delete(id: number): Promise<boolean> {
     return http.delete(`${this.baseUrl}`, id);
   }
+
+  async deleteByVersionId(id: number): Promise<boolean> {
+    return http.delete(`${this.LimitSampleVersionUrl}`, id);
+  }
 }
 
 export default new LimitSampleService();

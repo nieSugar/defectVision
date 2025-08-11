@@ -194,7 +194,7 @@ const editLimitSample = (row: any) => {
 // 删除限度样
 const handleDelete = async (id: number) => {
   try {
-    await limitSampleService.delete(id);
+    await limitSampleService.deleteByVersionId(id);
     ElMessage.success("删除成功");
     onSearch();
   } catch (error) {
