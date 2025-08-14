@@ -99,11 +99,6 @@
               {{ row.status === 1 ? "成功" : "失败" }}
             </div>
           </template>
-          <template #operation>
-            <el-button :size="size" class="reset-margin" link type="primary">
-              查看
-            </el-button>
-          </template>
         </PureTable>
       </template>
     </PureTableBar>

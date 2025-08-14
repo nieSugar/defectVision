@@ -20,8 +20,7 @@ export function useColumns() {
         }
       }
     },
-    { label: "操作日期", prop: "operTime" },
-    { label: "操作", fixed: "right", width: 120, slot: "operation" }
+    { label: "操作日期", prop: "operTime" }
   ]);
 
   return {
