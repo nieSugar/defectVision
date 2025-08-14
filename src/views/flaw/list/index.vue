@@ -172,9 +172,7 @@ const getProjectOptions = async () => {
       pageIndex: 1,
       pageSize: 1000
     });
-    if (result.success) {
-      projectOptions.value = result.data || [];
-    }
+    projectOptions.value = result.data || [];
   } catch (error) {
     console.error("获取项目列表失败", error);
   }
