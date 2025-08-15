@@ -34,7 +34,7 @@ class UserService {
   }
   public getList(data: ListQuery): Promise<ListResult<User>> {
     return http.get<ListQuery, ListResult<User>>(`${this.userUrl}`, {
-      params: data.query
+      params: data
     });
   }
 

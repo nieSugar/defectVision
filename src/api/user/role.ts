@@ -11,7 +11,7 @@ class RoleService {
 
   async getList(data: ListQuery): Promise<ListResult<Role>> {
     return http.get<ListQuery, ListResult<Role>>(this.baseUrl, {
-      params: data.query
+      params: data
     });
   }
 

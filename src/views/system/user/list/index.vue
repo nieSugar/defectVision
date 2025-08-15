@@ -46,7 +46,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSearch">搜索</el-button>
-        <el-button @click="resetForm(formRef)"> 重置</el-button>
+        <el-button @click="resetForm"> 重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -125,34 +125,27 @@
 </template>
 
 <script setup lang="ts">
-import deptService from "@/api/user/dept";
 import userService from "@/api/user/user";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { User } from "@/modules";
-import { handleTree } from "@/utils/tree";
 import { PaginationProps } from "@pureadmin/table";
-import { ElMessage, ElMessageBox, ElTree, FormInstance } from "element-plus";
-import { onMounted, reactive, ref, watch } from "vue";
+import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
+import { onMounted, reactive, ref } from "vue";
 import addUserDialog from "../components/add-user-dialog.vue";
 import { useColumns } from "./columns";
-
 const { columns } = useColumns();
 
 const formRef = ref<FormInstance>();
 
-const deptTreeRef = ref<InstanceType<typeof ElTree>>();
-const deptName = ref("");
-const deptOptions = ref([]);
 const loading = ref(false);
 const userDialog = ref(false);
 const form = reactive({
-  name: null,
-  status: null,
-  phoneNumber: null,
+  name: "",
+  status: "",
+  phoneNumber: "",
   pageIndex: 1,
   pageSize: 10,
-  createdTime: [],
-  deptId: null
+  createdTime: ""
 });
 
 const pagination = reactive<PaginationProps>({
@@ -169,18 +162,13 @@ const stateOptions = ref([
 
 const dataList = ref([]);
 
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.resetFields();
+const resetForm = () => {
+  formRef.value?.resetFields();
+  pagination.currentPage = 1;
   onSearch();
 };
 
 let selectUser = null;
-
-async function getDeptOptions() {
-  const { data } = await deptService.getList();
-  deptOptions.value = handleTree(data);
-}
 
 function handleCurrentChange(val: number) {
   pagination.currentPage = val;
@@ -216,7 +204,7 @@ function addUser() {
   userDialog.value = true;
 }
 
-function handleEdit(row: any) {
+function handleEdit(row) {
   selectUser = row;
   userDialog.value = true;
 }
@@ -227,53 +215,26 @@ async function handleDelete(userId: number) {
   onSearch();
 }
 
-const filterNode = (value: any, data: any) => {
-  if (!value) return true;
-  return data.name.indexOf(value) !== -1;
-};
-
 async function onSearch() {
   loading.value = true;
-
-  // 构建查询参数，将 createdTime 转换为 StartDate 和 EndDate
-  const queryParams: any = {
+  const [StartTime, EndTime] = Array.isArray(form.createdTime)
+    ? form.createdTime
+    : ["", ""];
+  const result = await userService.getList({
     name: form.name,
     status: form.status,
     phoneNumber: form.phoneNumber,
-    deptId: form.deptId,
+    startDate: StartTime || undefined,
+    endDate: EndTime || undefined,
     pageIndex: pagination.currentPage,
     pageSize: pagination.pageSize
-  };
-
-  // 如果有创建时间范围，转换为 StartDate 和 EndDate
-  if (form.createdTime && form.createdTime.length === 2) {
-    queryParams.StartDate = form.createdTime[0];
-    queryParams.EndDate = form.createdTime[1];
-  }
-
-  const result = await userService.getList(queryParams);
+  });
   dataList.value = result.data;
   pagination.total = result.totalCount;
   loading.value = false;
 }
 
-function handleNodeClick(data: any) {
-  if (data.id === form?.deptId) {
-    deptTreeRef.value!.setCurrentKey(null);
-    form.deptId = null;
-  } else {
-    form.deptId = data.id;
-  }
-
-  onSearch();
-}
-
-watch(deptName, val => {
-  deptTreeRef.value!.filter(val);
-});
-
 onMounted(async () => {
-  await getDeptOptions();
   await onSearch();
 });
 </script>

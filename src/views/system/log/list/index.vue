@@ -19,36 +19,6 @@
           @keyup.enter="onSearch"
         />
       </el-form-item>
-      <el-form-item label="类型" prop="businessType">
-        <el-select
-          v-model="form.businessType"
-          clearable
-          placeholder="操作类型"
-          style="width: 240px"
-        >
-          <el-option
-            v-for="dict in businessTypeOptions"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select
-          v-model="form.status"
-          clearable
-          placeholder="操作状态"
-          style="width: 240px"
-        >
-          <el-option
-            v-for="dict in stateOptions"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item label="操作时间" style="width: 308px">
         <el-date-picker
           v-model="dateRange"
@@ -131,7 +101,7 @@ const form = reactive<{
   module?: string;
 }>({});
 
-const dateRange = ref("");
+const dateRange = ref<[string, string] | "">("");
 
 const pagination = reactive<PaginationProps>({
   total: 0,
@@ -159,6 +129,7 @@ const logService = new LogService();
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
+  dateRange.value = "";
   onSearch();
 };
 
@@ -174,8 +145,13 @@ function handleSizeChange(val: number) {
 
 async function onSearch() {
   loading.value = true;
+  const [startTime, endTime] = Array.isArray(dateRange.value)
+    ? dateRange.value
+    : ["", ""];
   const result = await logService.getList({
     ...form,
+    startTime: startTime || undefined,
+    endTime: endTime || undefined,
     pageIndex: pagination.currentPage,
     pageSize: pagination.pageSize
   });
